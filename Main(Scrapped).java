@@ -1,3 +1,5 @@
+//initial project scrapped and remade. See new Game.java
+
 import java.util.Scanner;
 import java.io.File;
 import java.io.FileNotFoundException;
