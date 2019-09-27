@@ -43,29 +43,84 @@ public class GameLogic {
             if(Character.isLetter(hideMovie[i])){
                 hideMovie[i] = '_';
             }
-            else{
-                hideMovie[i] = ' ';
-            }
         }
         return new String(hideMovie);
     }
 
-    public void playerGuess() throws Exception {
+    /***
+     * This function converts the player guess to unmask the hidden movie when compared to the chosen movie.
+     * @param currentMovie is the current chosen movie
+     * @param guessedMovie is the current hidden movie
+     * @param guess is the players guess
+     * @return the guessed movie with players guess unmasked
+     */
+    public String playerGuess(String currentMovie, String guessedMovie, char guess){
+        char[] guessedMovieArray = guessedMovie.toCharArray();
+        boolean containsLetters = true;
+        int count = 0;
+        while(containsLetters){
+            if(currentMovie.indexOf(guess) >= 0 && count <= currentMovie.lastIndexOf(guess)){
+                guessedMovieArray[currentMovie.indexOf(guess, count)] = guess;
+                count += 1;
+            }
+            else{
+                containsLetters = false;
+            }
+        }
+        return new String(guessedMovieArray);
+    }
+
+
+    public void gameLoop() throws Exception {
         String selectedMovie = this.chosenMovie();
         String hiddenMovie = this.hideGuess(selectedMovie);
         Scanner scanner = new Scanner(System.in);
+        char[] guessedLetters = new char[26];
+        int numberOfGuessedLetters = 0;
+        int guesses = 10;
 
-        for(int i = 10; i > 0; i--){
+        while(guesses > 0){
             System.out.println(hiddenMovie);
-            //print out selectedMovie line
+            System.out.println(guessedLetters);
+            System.out.println("You have " + guesses + " remaining.");
+
             char guess = scanner.next().charAt(0);
             guess = Character.toLowerCase(guess);
-            if (Character.isLetter(guess)){
-                System.out.println(selectedMovie.indexOf(guess));
+            ////make case?////
+
+            if (new String(guessedLetters).indexOf(guess) > 0){
+                System.out.println("Please guess a letter you have not already guessed.");
             }
-            else{
-                System.out.println("Please input a valid letter");
+            else if (selectedMovie.indexOf(guess) < 0){
+                System.out.println("That character is not in the movie title.");
+                guesses -= 1;
+                guessedLetters[numberOfGuessedLetters] = guess;
+                numberOfGuessedLetters += 1;
             }
+            else if (Character.isLetter(guess)){
+                hiddenMovie = playerGuess(selectedMovie, hiddenMovie, guess);
+                guessedLetters[numberOfGuessedLetters] = guess;
+                numberOfGuessedLetters += 1;
+                if (hiddenMovie.equals(selectedMovie)){
+                    System.out.println("You win the game!");
+                    break;
+                }
+            }
+            else System.out.println("Please input a valid letter");
+        }
+
+        if (guesses == 0){
+            System.out.println("You failed to guess the movie.");
+            System.out.println("The correct movie was " + selectedMovie + ".");
+        }
+
+        System.out.println("Would you like to play again? Y/N");
+
+        char guess = scanner.next().charAt(0);
+        guess = Character.toUpperCase(guess);
+
+        if(guess == 'Y') {
+            gameLoop();
         }
     }
 
